@@ -1,0 +1,18 @@
+﻿  Source.cpp
+C:\Users\User\programming\c++\GUI\LinearAlg\Source.cpp(22,70): warning C4244: 'argument': conversion from 'double' to 'const unsigned __int64', possible loss of data
+C:\Users\User\programming\c++\GUI\LinearAlg\Source.cpp(22,34): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\User\programming\c++\GUI\LinearAlg\Source.cpp(22,42): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\User\programming\c++\GUI\LinearAlg\Source.cpp(22,52): warning C4244: 'argument': conversion from 'double' to 'const unsigned __int64', possible loss of data
+C:\Users\User\programming\c++\GUI\LinearAlg\Source.cpp(29,15): warning C4244: 'argument': conversion from 'double' to 'const unsigned __int64', possible loss of data
+C:\Users\User\programming\c++\GUI\LinearAlg\Source.cpp(29,18): warning C4244: 'argument': conversion from 'double' to 'const unsigned __int64', possible loss of data
+C:\Users\User\programming\c++\GUI\LinearAlg\Source.cpp(33,15): warning C4244: 'argument': conversion from 'double' to 'const unsigned __int64', possible loss of data
+C:\Users\User\programming\c++\GUI\LinearAlg\Source.cpp(33,18): warning C4244: 'argument': conversion from 'double' to 'const unsigned __int64', possible loss of data
+C:\Users\User\programming\c++\GUI\LinearAlg\Source.cpp(66,29): warning C4244: '*=': conversion from 'const double' to 'int', possible loss of data
+C:\Users\User\programming\c++\GUI\LinearAlg\Source.cpp(77,29): warning C4244: '*=': conversion from 'const double' to 'int', possible loss of data
+C:\Users\User\programming\c++\GUI\LinearAlg\Source.cpp(285,32): warning C4244: 'argument': conversion from '__int64' to 'double', possible loss of data
+C:\Users\User\programming\c++\GUI\LinearAlg\Source.cpp(285,23): warning C4244: 'argument': conversion from '__int64' to 'double', possible loss of data
+C:\Users\User\programming\c++\GUI\LinearAlg\Source.cpp(292,26): warning C4244: 'argument': conversion from '__int64' to 'double', possible loss of data
+C:\Users\User\programming\c++\GUI\LinearAlg\Source.cpp(292,21): warning C4244: 'argument': conversion from '__int64' to 'double', possible loss of data
+C:\Users\User\programming\c++\GUI\LinearAlg\Source.cpp(481,6): warning C4101: 'choice': unreferenced local variable
+C:\Users\User\programming\c++\GUI\LinearAlg\Source.cpp(480,6): warning C4101: 'operations_choice': unreferenced local variable
+  LinearAlg.vcxproj -> C:\Users\User\programming\c++\GUI\LinearAlg\x64\Debug\LinearAlg.exe

@@ -38,10 +38,14 @@ class Matrix {
 	}
 
 
+	int getRow() { return row; }
+	int getCol() { return col; }
+
+
 	
 
 
-
+	/*Math=============================================*/
 
 	////Core math
 	double trace() const {
@@ -132,9 +136,49 @@ class Matrix {
 		}
 	}
 
+	void row_reduction() {
+		int source, target;
+		int scalar;
+		int scalar2;
+		//bool reduce;
+		while (true) {
+
+			cout << "Scalar and source row. 0-2 (-1 to exit):\n";
+			cin >> scalar >> source;
+			if (source == -1) break;
+			scale_row(source, scalar);
+			print_row(source);
+
+			cout << "\nScalar and target row:\n";
+			cin >> scalar2 >> target;
+			if (target == -1) break;
+			scale_row(target, scalar2);
+			print_row(source);
+			print_row(target);
 
 
-		
+
+
+
+			cout << "0-add, 1-Subtract, 2-Scale down to 1: ";
+			int choice;
+			cin >> choice;
+			switch (choice) {
+			case 0:
+				row_add(source, target);
+				break;
+			case 1:
+				row_subtract(source, target);
+				break;
+			case 2:
+				reduce_row_to_1(target);
+				break;
+			default:
+				cout << "No reduction to 1 performed.\n";
+			}
+			cout << "\n" << *this << "\n";
+		}
+	}
 
 
 
@@ -306,88 +350,6 @@ class Matrix {
 
 
 
-	void row_reduction() {
-		int source, target;
-			int scalar; 
-		int scalar2;
-		//bool reduce;
-		while (true) {
-			
-			cout << "Scalar and source row. 0-2 (-1 to exit):\n";
-			cin >> scalar >> source;
-			if (source == -1) break;
-			scale_row(source, scalar);
-			print_row(source);
-
-			cout << "\nScalar and target row:\n";
-			cin >> scalar2 >> target;
-			if (target == -1) break;
-			scale_row(target, scalar2); 
-			print_row(source);
-			print_row(target);
-
-
-
-
-
-			cout << "0-add, 1-Subtract, 2-Scale down to 1: ";
-			int choice;
-			cin >> choice;
-			switch (choice) {
-			case 0:
-				row_add(source, target);
-				break;
-			case 1:
-				row_subtract(source, target);
-				break;
-			case 2:
-				reduce_row_to_1(target);
-				break;
-			default:
-				cout << "No reduction to 1 performed.\n";
-			}
-			cout << "\n" << *this << "\n";
-		}
-	}
-
-
-	//cout << "Reduce target to 1?";
-//cin >> reduce;
-//if (reduce) {
-//	reduce_row_to_1(target);
-//} else {
-//	cout << "Continuing without reduction.\n";
-//}
-
-
-
-//cout << "Source Scalar: ";
-//cin >> scalar;
-//scale_row(source, scalar);
-//print_row(source);
-
-//cout << "Target Scalar:  ";
-//cin >> scalar2;
-//scale_row(target, scalar2);
-//print_row(source);
-//print_row(target);
-
-//cout << "Reduce source or target to 1? 0-Source, 1-Target: 2-Continue ";
-//int reduce_choice;
-//cin >> reduce_choice;
-
-//if (reduce_choice == 0) {
-//	 reduce_row_to_1(source);
-// } else if (reduce_choice == 1) {
-//	 reduce_row_to_1(target);
-// } else {
-//	 cout << "Continuing.\n";
-// }
-
-
-
-
-
 	void linear_independence(double determinant) {
 		cout << "This matrix is ";
 		if (determinant != 0) {
@@ -462,12 +424,9 @@ class Matrix {
 		 }
 	 }
 
-
-
-
 };
 
-
+/*===================================================*/
 void matrix_info_2D() {
 	Matrix M(2, 2);
 	M(0, 0) = 1;
@@ -503,12 +462,14 @@ void matrix_info_2D() {
 }
 
 
-void menu() {
 
+
+
+
+//Main menu functions
+Matrix create_matrix() {
 	int col = 0;
 	int row = 0;
-	int print_choice;
-	int scale_choice;
 	int operations_choice;
 	int choice;
 
@@ -521,8 +482,11 @@ void menu() {
 	M.user_populate();
 	cout << "\nResulting Matrix: ";
 	M.print_full_matrix();
-
-
+	return M;
+}
+//Matrix passed by reference	
+void all_prints( const Matrix&M) {
+	int print_choice;
 	cout << "Prints: \n";
 	cout << "1.Print Row\n";
 	cout << "2.Print column\n";
@@ -549,8 +513,9 @@ void menu() {
 			break;
 		}
 	}
-
-
+}
+void all_scalars(Matrix& M) {
+	int scale_choice;
 	cout << "Scalars:\n";
 	cout << "\n7. Scale full matrix\n";
 	cout << "\n8. Scale column\n";
@@ -559,79 +524,117 @@ void menu() {
 	cout << "\n14. Vector-matrix (get column as vector)\n";
 	cout << "\n15. Row-matrix (get row as vector)\n";
 
+	cin >> scale_choice;
 
-	switch(scale_choice) {
+	switch (scale_choice) {
 		case 0: {
-			 M = M.scalar_multiply_full_matrix(2);
-			 M.print_full_matrix();
-			 break;
+			M = M.scalar_multiply_full_matrix(2);
+			M.print_full_matrix();
+			break;
+			}
+		case 1: {
+			M.scale_col(0, 2);
+			M.print_full_matrix();
+			break;
 		}
-		//case 1: {
-		//	M.scale_col(0, 2);
-		//	M.print_full_matrix();
-		//	break;
-		//}
-		//case 2: {
-		//	M.scale_row(0, 2);
-		//	M.print_full_matrix();
-		//	break;
-		//case 3: {
-		//	M = M.scalar_multiply_full_matrix(2);
-		//	M.print_full_matrix();
-		//	break;
-		//case 4: {
-		//	M = M.vector_matrix(0);
-		//	M.print_full_matrix();
-		//	break;
-		//case 5: {
-		//	M = M.row_matrix(0);
-		//	M.print_full_matrix();
-		//	break;
-		//case 6: {
-		//	M.reduce_row_to_1(0);
-		//	M.print_full_matrix();
-		//	break;
-		//	}
-		//}
+		case 2: {
+			M.scale_row(0, 2);
+			M.print_full_matrix();
+			break;
+		}
+		case 3: {
+			M = M.scalar_multiply_full_matrix(2);
+			M.print_full_matrix();
+			break;
+		}
+		case 4: {
+  			M = M.vector_matrix(0);
+  			M.print_full_matrix();
+  			break;
+		}
+		case 5: {
+  			M = M.row_matrix(0);
+  			M.print_full_matrix();
+  			break;
+		}
+		case 6: {
+  			M.reduce_row_to_1(0);
+  			M.print_full_matrix();
+  			break;
+		}
 	}
+}
+void all_operations(Matrix& M) {
+	int operations_choice;
 
 
 	cout << "Operations:\n";
 	cout << "\n9. Add row to another row\n";
 	cout << "\n10. Subtract row from another row\n";
-	
 	cout << "\n12. Transpose matrix\n";
 
-	//switch(operations_choice) {
-	//	case 0: {
-	//		 M.row_add(0, 1);
-	//		 M.print_full_matrix();
-	//		 break;
-	//	}
-	//	case 1: {
-	//		M.row_subtract(0, 1);
-	//		M.print_full_matrix();
-	//		break;
-	//	case 2: {
-	//		M.transpose();
-	//		M.print_full_matrix();
-	//		break;
-	//	}
+	cin >> operations_choice;
 
-	//	case 3: {
-	//		M.determinant_3dim();
-	//		M.print_full_matrix();
-	//		break;
-	//	}
-	//	case 4: {
-	//		M.determinant_2dim();
-	//		M.print_full_matrix()''
-	//	}
-	//}
+	switch (operations_choice) {
+		case 0: {
+			M.row_add(0, 1);
+			M.print_full_matrix();
+			break;
+		}
 
-	// etc.
+		case 1: {
+			M.row_subtract(0, 1);
+			M.print_full_matrix();
+			break;
+		}
+
+		case 2: {
+			M.transpose();
+			M.print_full_matrix();
+			break;
+		}
+
+	}
+	
+}
+
+
+void get_determinants(Matrix& M) {
+	if (M.getRow() == 2 && M.getCol() == 2) {
+		M.determinant_2dim();
+		M.print_full_matrix();
+	}
+	if (M.getRow() == 3 && M.getCol() == 3) {
+		M.determinant_3dim();
+		M.print_full_matrix();
+	}
+	if (M.getRow() > 3 && M.getCol() > 3){
+		cout << "NxN version soon";
+	}
 
 }
+
+
+
+
+
+
+void main_menu() {
+
+	//Branching paths based on 2d vs 3d
+	Matrix M = create_matrix();
+	all_prints(M);
+	all_scalars(M);
+	all_operations(M);
+	get_determinants(M);
+	
+
+
+}
+
+
+
+
 
 ostream& operator<<(std::ostream& os, const Matrix& M) {
 	for (int i = 0; i < M.row; i++) {
@@ -656,11 +659,7 @@ ostream& operator<< (ostream& os, const Matrix::Fraction& f) {
 
 int main() {
 
-	menu();
-
-
-
-
+	main_menu();
 
 	Matrix M2(3, 3);
 	M2(0, 0) = 2;
