@@ -19,7 +19,8 @@ class Matrix {
 
 	public:
 	/*Definition:Initializer List*/
-	Matrix(double r, double c) : row(r), col(c), data(r, vector<double>(c, 0)) {}
+	Matrix() : row(0), col(0), data(0, vector<double>(0, 0)) {}
+	Matrix(int r, int c) : row(r), col(c), data(r, vector<double>(c, 0)) {}
 
 	friend std::ostream& operator<<(std::ostream& os, const Matrix& M);
 	
@@ -424,9 +425,17 @@ class Matrix {
 		 }
 	 }
 
+	 void random_populate(int random_limit) {
+		 for (int i = 0; i < row; i++) {
+			 for (int j = 0; j < col; j++) {
+				 (*this)(i, j) = rand() % random_limit;
+			 }
+		 }
+	 }
+
 };
 
-/*===================================================*/
+/*====================Menu Utilities===============================*/
 void matrix_info_2D() {
 	Matrix M(2, 2);
 	M(0, 0) = 1;
@@ -468,22 +477,40 @@ void matrix_info_2D() {
 
 //Main menu functions
 Matrix create_matrix() {
-	int col = 0;
-	int row = 0;
-	int operations_choice;
+	int cols = 0;
+	int rows = 0;
 	int choice;
 
 	cout << "Populate matrix\n";
 	cout << "Cols:";
-	cin >> col;
+	cin >> cols;
 	cout << "\nRows:";
-	cin >> row;
-	Matrix M(row, col);
+	cin >> rows;
+	Matrix M(rows, cols);
 	M.user_populate();
-	cout << "\nResulting Matrix: ";
+	cout << "\nResulting Matrix:\n";
 	M.print_full_matrix();
 	return M;
 }
+
+Matrix generate_random_matrix() {
+	int cols = 0;
+	int rows = 0;
+	int random_limit = 0;
+	cout << "Cols?";
+	cin >> cols;
+	cout << "Rows?";
+	cin >> rows;
+	Matrix M(rows, cols);
+	cout << "Random limit:";
+	cin >> random_limit;
+	cout << "\nResulting Matrix:\n";
+	M.random_populate(random_limit);
+	return M;
+}
+
+
+
 //Matrix passed by reference	
 void all_prints( const Matrix&M) {
 	int print_choice;
@@ -620,13 +647,57 @@ void get_determinants(Matrix& M) {
 
 
 void main_menu() {
+	int main_menu_choice;
+	Matrix M;
+
+	cout << "Chaos Control Media-Linear Algebra Program\n";
+	cout << "Accept the Darkness.\n\n";
+
+
+	while(true){
+		cout << "1. Create Matrix";
+		int gen_choice;
+		cout << "User generate or random_generate";
+		cin >> gen_choice;
+
+		if (gen_choice == 0) {
+			M = create_matrix();
+			M.print_full_matrix();
+		}
+
+		if (gen_choice == 1) {
+			M = generate_random_matrix();
+			M.print_full_matrix();
+		}
+	}
+
+
+
+
+
+
+	cout << "2.Show all prints";
+	//all_prints(M);
+
+	cout << "3. Show all scalars";
+	cout << "4. Show all operations\n";
+	cout << "5. Get determinants";
+
+
+
+	
+	
+
+
+
+	
 
 	//Branching paths based on 2d vs 3d
-	Matrix M = create_matrix();
-	all_prints(M);
-	all_scalars(M);
-	all_operations(M);
-	get_determinants(M);
+	//Matrix M = create_matrix();
+	//all_prints(M);
+	//all_scalars(M);
+	//all_operations(M);
+	//get_determinants(M);
 	
 
 

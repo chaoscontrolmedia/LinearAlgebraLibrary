@@ -3,12 +3,12 @@
   "WorkspaceRootPath": "C:\\Users\\User\\programming\\c\u002B\u002B\\GUI\\LinearAlg\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:1:0:{63A1D128-5448-43FC-8108-023A78FED756}|LinearAlg.vcxproj|C:\\Users\\User\\programming\\c\u002B\u002B\\GUI\\LinearAlg\\Source.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:1:0:{63A1D128-5448-43FC-8108-023A78FED756}|LinearAlg.vcxproj|solutionrelative:Source.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
       "AbsoluteMoniker": "D:2:0:{63A1D128-5448-43FC-8108-023A78FED756}|LinearAlg.vcxproj|C:\\Users\\User\\programming\\c\u002B\u002B\\GUI\\LinearAlg\\Source.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:2:0:{63A1D128-5448-43FC-8108-023A78FED756}|LinearAlg.vcxproj|solutionrelative:Source.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:1:0:{63A1D128-5448-43FC-8108-023A78FED756}|LinearAlg.vcxproj|C:\\Users\\User\\programming\\c\u002B\u002B\\GUI\\LinearAlg\\Source.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:1:0:{63A1D128-5448-43FC-8108-023A78FED756}|LinearAlg.vcxproj|solutionrelative:Source.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{63A1D128-5448-43FC-8108-023A78FED756}|LinearAlg.vcxproj|C:\\Users\\User\\programming\\c\u002B\u002B\\GUI\\LinearAlg\\proofs..cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
@@ -26,11 +26,24 @@
       "DocumentGroups": [
         {
           "DockedWidth": 185,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Source.cpp",
+              "DocumentMoniker": "C:\\Users\\User\\programming\\c\u002B\u002B\\GUI\\LinearAlg\\Source.cpp",
+              "RelativeDocumentMoniker": "Source.cpp",
+              "ToolTip": "C:\\Users\\User\\programming\\c\u002B\u002B\\GUI\\LinearAlg\\Source.cpp",
+              "RelativeToolTip": "Source.cpp",
+              "ViewState": "AgIAAHkBAAAAAAAAAAAIwKsBAAAqAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-04-14T21:58:46.597Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -43,19 +56,6 @@
               "ViewState": "AgIAAAAAAAAAAAAAAAAAACMAAAACAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2026-04-17T03:39:05.602Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "Source.cpp",
-              "DocumentMoniker": "C:\\Users\\User\\programming\\c\u002B\u002B\\GUI\\LinearAlg\\Source.cpp",
-              "RelativeDocumentMoniker": "Source.cpp",
-              "ToolTip": "C:\\Users\\User\\programming\\c\u002B\u002B\\GUI\\LinearAlg\\Source.cpp",
-              "RelativeToolTip": "Source.cpp",
-              "ViewState": "AgIAAHUCAAAAAAAAAAAIwGEBAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2026-04-14T21:58:46.597Z",
-              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -76,13 +76,13 @@
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
               "Title": "Source.cpp",
               "DocumentMoniker": "C:\\Users\\User\\programming\\c\u002B\u002B\\GUI\\LinearAlg\\Source.cpp",
               "RelativeDocumentMoniker": "Source.cpp",
               "ToolTip": "C:\\Users\\User\\programming\\c\u002B\u002B\\GUI\\LinearAlg\\Source.cpp",
               "RelativeToolTip": "Source.cpp",
-              "ViewState": "AgIAALcBAAAAAAAAAAAYwKwBAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAIsCAAAAAAAAAAAMwJgCAAAZAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2026-04-16T02:08:00.48Z",
               "EditorCaption": ""
