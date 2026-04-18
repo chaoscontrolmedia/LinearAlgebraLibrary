@@ -1,0 +1,802 @@
+#include <iostream>
+#include <vector>
+#include <iomanip>
+
+using namespace std;
+
+
+
+class Matrix {
+	private:
+		//r and c
+		//Constructor
+		//Declaration of member variables and functions
+		int row, col;
+
+		//Declaration of 2d matrix;
+		vector<vector<double>> data;
+
+
+	public:
+	/*Definition:Initializer List*/
+	Matrix(double r, double c) : row(r), col(c), data(r, vector<double>(c, 0)) {}
+
+	friend std::ostream& operator<<(std::ostream& os, const Matrix& M);
+	
+
+	//Operators
+	double& operator()(double i, double j) {
+		return data[i][j];
+	}
+
+	const double& operator()(double i, double j) const {
+		return data[i][j];
+	}
+
+	bool bounds_check(int row_index) const {
+		return (row_index < 0 || row_index >= row);
+	}
+
+
+	
+
+
+
+
+	////Core math
+	double trace() const {
+		if (row != col) {
+			cout << "Trace only defined for square matrices";
+			return 0;
+		}
+
+		double tr = 0;
+		for (int i = 0; i < row; i++) {
+			tr += (*this)(i, i);
+		}
+		return tr;
+	}
+
+	 double down_product(int start)const {
+       int result = 1;
+       cout << "\n";
+
+       for (int i = 0; i < row; i++) {
+           int j = (start + i) % col;
+           result *= (*this)(i, j);
+       }
+
+       return result;
+   }
+
+	 double up_product(int start) const {
+       int result = 1;
+       for (int i = 0; i < row; i++) {
+           int j = (start + (row - 1 - i)) % col;
+           //cout << (*this)(i,j) << " ";
+           result *= (*this)(i, j);
+       }
+       return result;
+   }
+
+	void scale_row(int row_index, double scalar) {
+		if (row_index < 0 || row_index >= row) {
+			cout << "Invalid row index.";
+			exit(1);
+		}
+
+
+		for (int j = 0; j < col; j++) {
+			(*this)(row_index, j) *= scalar;
+		}
+	}
+
+	void scale_col(int col_index, double scalar) {
+		if (col_index < 0 || col_index >= col) {
+			cout << "Invalid column index.";
+			exit(1);
+		}
+		for (int i = 0; i < row; i++) {
+			(*this)(i, col_index) *= scalar;
+		}
+	}
+
+
+	void row_add(int source, int target) {
+		for (int j = 0; j < col; j++) {
+			(*this)(target, j) += (*this)(source, j);
+		}
+	}
+
+	void row_subtract(int source, int target) {
+		for (int j = 0; j < col; j++) {
+			(*this)(target, j) = (*this)(source, j) - (*this)(target, j);
+		}
+	}
+
+	void reduce_row_to_1_alt(int row_index) {
+		double leading_value = (*this)(row_index, 0);
+		if (leading_value == 0) {
+			cout << "Cannot reduce row to 1: leading value is zero.";
+			return;
+		}
+		scale_row(row_index, 1.0 / leading_value);
+	}
+
+	void reduce_row_to_1(int row_index) {
+		for(int j = 0; j<col; j++) {
+			if ((*this)(row_index, j) != 0) {
+				scale_row(row_index, 1.0 / (*this)(row_index, j));
+				return;
+			}
+		}
+	}
+
+
+
+		
+
+
+
+
+
+	Matrix transpose(){
+       Matrix T(col, row);
+       for (int i = 0; i< row; i++){
+           for(int j = 0; j < col; j++){
+               T(j,i) = (*this)(i,j); 
+           }
+       }
+       return T;
+   }
+
+	 Matrix scalar_multiply_full_matrix(double scalar) const {
+       Matrix S(row, col);
+       for (int i = 0; i < row; i++) {
+           for (int j = 0; j < col; j++) {
+               S(i, j) = (*this)(i, j) * scalar;
+           }
+       }
+       return S;
+   }
+
+	 //Gives me a vector object to modify
+	 Matrix vector_matrix(int col_index) const {
+		 if (col_index < 0 || col_index >= col) {
+			 cout << "Invalid column index.";
+			 exit(1);
+		 }
+		 Matrix V(row, 1);
+		 for (int i = 0; i < row; i++) {
+			 V(i, 0) = (*this)(i, col_index);
+		 }
+		 return V;
+	 }
+
+	 Matrix row_matrix(int row_index) const {
+		 if (row_index < 0 || row_index >= row) {
+			 cout << "Invalid row index.";
+			 exit(1);
+		 }
+		 Matrix R(1, col);
+		 for (int j = 0; j < col; j++) {
+			 R(0, j) = (*this)(row_index, j);
+		 }
+		 return R;
+	 }
+
+
+	 struct Fraction {
+		 double numerator;
+		 double denominator;
+
+		 Fraction(double num, double denom) 
+			 : numerator(num), denominator(denom) {}
+		 Fraction() : numerator(1), denominator(0) {}
+
+
+		 //1/11 = {1/11}
+		 // 1*11 = 11 
+		 // 11/11 = 1
+		 // possibly use neg.exponents
+
+		 Fraction convertToFraction(int n) {
+			 return Fraction(1, n);
+		 }
+
+		 long long euclidean_algorithm(long long a, long long b) {
+			 while (b != 0) {
+				 long long temp = b;
+				 b = a % b;
+				 a = temp;
+			 }
+			 return a >= 0 ? a : -a;
+		 }
+
+
+
+		 //Fraction toFraction(double value, double epsilon = 1e-10) {
+			// long long denom = 1;
+			// while (abs(value * denom - round(value * denom)) > epsilon) {
+			//	 denom *= 10;
+			// }
+			// long long num = round(value * denom);
+			// long long gcd = euclidean_algorithm(num, denom);
+			// return Fraction(num / gcd, denom / gcd);
+		 //}
+
+
+		 Fraction toFraction(double value, double epsilon = 1e-10) {
+			 long long num = 1, denom = 0;
+			 long long prev_num = 0, prev_denom = 1;
+			 double x = value;
+
+			 for (int i = 0; i < 50; i++) {
+				 long long a = (long long)x;
+				 long long new_num = a * num + prev_num;
+				 long long new_denom = a * denom + prev_denom;
+
+				 if (abs(value - (double)new_num / new_denom) < epsilon) {
+					 return Fraction(new_num, new_denom);
+				 }
+
+				 prev_num = num; prev_denom = denom;
+				 num = new_num; denom = new_denom;
+				 x = 1.0 / (x - a);
+			 }
+			 return Fraction(num, denom);
+		 }
+
+
+
+		 double convertToWhole(Fraction f) {
+			 return f.numerator * f.denominator;
+		 }
+		 double scaleTo1(int n) {
+			 return 1.0 / n;
+		 }	
+
+	 };
+
+
+
+	struct Det2Result {
+		double down;
+		double up;
+		double value;
+	};
+
+	Det2Result determinant_2dim() const {
+		double down = (*this)(0, 0) * (*this)(1, 1);
+		double up = (*this)(0, 1) * (*this)(1, 0);
+
+		return { down, up, down - up };
+	}
+
+	struct Det3Result {
+		double down_diagonals[3];
+		double up_diagonals[3];
+		double down_sum;
+		double up_sum;
+		double value;
+
+	};
+
+	Det3Result determinant_3dim() const {
+		// pure computation, no cout
+		Det3Result result;
+		result.down_sum = 0;
+		result.up_sum = 0;
+		for (int i = 0; i < 3; i++) {
+			result.down_diagonals[i] = down_product(i);
+			result.down_sum += result.down_diagonals[i];
+			result.up_diagonals[i] = up_product(i);
+			result.up_sum += result.up_diagonals[i];
+		}
+		result.value = result.down_sum - result.up_sum;
+		return result;
+	}
+
+
+
+
+
+
+
+
+
+
+	void row_reduction() {
+		int source, target;
+			int scalar; 
+		int scalar2;
+		//bool reduce;
+		while (true) {
+			
+			cout << "Scalar and source row. 0-2 (-1 to exit):\n";
+			cin >> scalar >> source;
+			if (source == -1) break;
+			scale_row(source, scalar);
+			print_row(source);
+
+			cout << "\nScalar and target row:\n";
+			cin >> scalar2 >> target;
+			if (target == -1) break;
+			scale_row(target, scalar2); 
+			print_row(source);
+			print_row(target);
+
+
+
+
+
+			cout << "0-add, 1-Subtract, 2-Scale down to 1: ";
+			int choice;
+			cin >> choice;
+			switch (choice) {
+			case 0:
+				row_add(source, target);
+				break;
+			case 1:
+				row_subtract(source, target);
+				break;
+			case 2:
+				reduce_row_to_1(target);
+				break;
+			default:
+				cout << "No reduction to 1 performed.\n";
+			}
+			cout << "\n" << *this << "\n";
+		}
+	}
+
+
+	//cout << "Reduce target to 1?";
+//cin >> reduce;
+//if (reduce) {
+//	reduce_row_to_1(target);
+//} else {
+//	cout << "Continuing without reduction.\n";
+//}
+
+
+
+//cout << "Source Scalar: ";
+//cin >> scalar;
+//scale_row(source, scalar);
+//print_row(source);
+
+//cout << "Target Scalar:  ";
+//cin >> scalar2;
+//scale_row(target, scalar2);
+//print_row(source);
+//print_row(target);
+
+//cout << "Reduce source or target to 1? 0-Source, 1-Target: 2-Continue ";
+//int reduce_choice;
+//cin >> reduce_choice;
+
+//if (reduce_choice == 0) {
+//	 reduce_row_to_1(source);
+// } else if (reduce_choice == 1) {
+//	 reduce_row_to_1(target);
+// } else {
+//	 cout << "Continuing.\n";
+// }
+
+
+
+
+
+	void linear_independence(double determinant) {
+		cout << "This matrix is ";
+		if (determinant != 0) {
+			cout << "linearly independent.\n";
+		} else {
+			cout << "linearly dependent.\n";
+		}	
+		return;
+	}
+
+
+	 //Member function. Must be called on an instance of the Matrix class. Prints the specified row of the matrix.
+	 void print_row(int row_index) const {
+		 if (bounds_check(row_index)) {
+			 cout << "Invalid column index.";
+			 exit(1);
+		 }
+
+		 for (int j = 0; j < col; j++) {
+			 cout << (*this)(row_index, j) << ' ';
+		 }
+		 cout << '\n';
+	 }
+
+
+	 void print_vector(int col_index) const {
+		 if (bounds_check(col_index)) {
+			 cout << "Invalid column index.";
+			 exit(1);
+		 }
+		 for (int i = 0; i < row; i++) {
+			 cout << data[i][col_index] << ' ';
+		 }
+		 cout << '\n';
+	 }
+
+
+	 void print_down_diagonal(int start) const {
+		 for (int i = 0; i < row; i++) {
+			 int j = (start + i) % col;
+			 cout << (*this)(i, j) << ' ';
+		 }
+		 cout << "\n";
+	 }
+
+	 void print_up_diagonal(int start) const {
+		 for (int i = row - 1; i >= 0; i--) {
+			 int j = (start + (row - 1 - i)) % col;
+			 cout << (*this)(i, j) << ' ';
+		 }
+		 cout << "\n";
+	 }
+
+	 void print_full_matrix() {
+		 for (int i = 0; i < row; i++) {
+			 for (int j = 0; j < col; j++) {
+				 cout << (*this)(i, j) << ' ';
+			 }
+			 cout << '\n';
+		 }
+	 }	
+
+
+	 ////Belongs to the Matrix class.
+	 void user_populate() {
+		 
+		 for (int i = 0; i < row; i++) {
+			 for (int j = 0; j < col; j++) {
+				 cout << "Enter element [ " << i << "][" << j << "]: ";
+				 cin >> (*this)(i, j);
+			 }
+		 }
+	 }
+
+
+
+
+};
+
+
+void matrix_info_2D() {
+	Matrix M(2, 2);
+	M(0, 0) = 1;
+	M(0, 1) = 5;
+	M(1, 0) = 9;
+	M(1, 1) = 7;
+
+	cout << M;
+
+	cout << "\nRow 0 = ";
+	M.print_row(0);
+
+	cout << "\nDown diagonal starting at 0 = ";
+	M.print_down_diagonal(0);
+
+
+	cout << "\nUp diagonal starting at 0 = ";
+	M.print_up_diagonal(0);
+
+
+	cout << "\nVector matrix at row 1 = ";
+	M.print_vector(1);
+
+	cout << "\nTrace = " << M.trace();
+
+	cout << "\nDown product starting at 0 = " << M.down_product(0);
+	cout << "\nUp product starting at 0 = " << M.up_product(0);
+
+
+
+	auto d = M.determinant_2dim();
+	cout << "\nDeterminant" << d.down << " - " << d.up << " = " << d.value;
+}
+
+
+void menu() {
+
+	int col = 0;
+	int row = 0;
+	int print_choice;
+	int scale_choice;
+	int operations_choice;
+	int choice;
+
+	cout << "Populate matrix\n";
+	cout << "Cols:";
+	cin >> col;
+	cout << "\nRows:";
+	cin >> row;
+	Matrix M(row, col);
+	M.user_populate();
+	cout << "\nResulting Matrix: ";
+	M.print_full_matrix();
+
+
+	cout << "Prints: \n";
+	cout << "1.Print Row\n";
+	cout << "2.Print column\n";
+	cout << "3.Print down diagonal\n";
+	cout << "4.Print up diagonal\n";
+	cin >> print_choice;
+
+
+	switch (print_choice) {
+		case 0: {
+			M.print_row(0);
+			break;
+		}
+		case 1: {
+			M.print_vector(0);
+			break;
+		}
+		case 2: {
+			M.print_down_diagonal(0);
+			break;
+		}
+		case 3: {
+			M.print_up_diagonal(0);
+			break;
+		}
+	}
+
+
+	cout << "Scalars:\n";
+	cout << "\n7. Scale full matrix\n";
+	cout << "\n8. Scale column\n";
+	cout << "\n9. Scale row\n";
+	cout << "\n13. Scalar multiply full matrix\n";
+	cout << "\n14. Vector-matrix (get column as vector)\n";
+	cout << "\n15. Row-matrix (get row as vector)\n";
+
+
+	switch(scale_choice) {
+		case 0: {
+			 M = M.scalar_multiply_full_matrix(2);
+			 M.print_full_matrix();
+			 break;
+		}
+		//case 1: {
+		//	M.scale_col(0, 2);
+		//	M.print_full_matrix();
+		//	break;
+		//}
+		//case 2: {
+		//	M.scale_row(0, 2);
+		//	M.print_full_matrix();
+		//	break;
+		//case 3: {
+		//	M = M.scalar_multiply_full_matrix(2);
+		//	M.print_full_matrix();
+		//	break;
+		//case 4: {
+		//	M = M.vector_matrix(0);
+		//	M.print_full_matrix();
+		//	break;
+		//case 5: {
+		//	M = M.row_matrix(0);
+		//	M.print_full_matrix();
+		//	break;
+		//case 6: {
+		//	M.reduce_row_to_1(0);
+		//	M.print_full_matrix();
+		//	break;
+		//	}
+		//}
+	}
+
+
+	cout << "Operations:\n";
+	cout << "\n9. Add row to another row\n";
+	cout << "\n10. Subtract row from another row\n";
+	
+	cout << "\n12. Transpose matrix\n";
+
+	//switch(operations_choice) {
+	//	case 0: {
+	//		 M.row_add(0, 1);
+	//		 M.print_full_matrix();
+	//		 break;
+	//	}
+	//	case 1: {
+	//		M.row_subtract(0, 1);
+	//		M.print_full_matrix();
+	//		break;
+	//	case 2: {
+	//		M.transpose();
+	//		M.print_full_matrix();
+	//		break;
+	//	}
+
+	//	case 3: {
+	//		M.determinant_3dim();
+	//		M.print_full_matrix();
+	//		break;
+	//	}
+	//	case 4: {
+	//		M.determinant_2dim();
+	//		M.print_full_matrix()''
+	//	}
+	//}
+
+	// etc.
+
+}
+
+ostream& operator<<(std::ostream& os, const Matrix& M) {
+	for (int i = 0; i < M.row; i++) {
+		for (int j = 0; j < M.col; j++) {
+			os << M(i, j) << " ";
+		}
+		os << '\n';
+	}
+	return os;
+}
+
+ostream& operator<<(ostream& os, const Matrix::Det3Result& d) {
+	os << "Determinant: " << d.down_sum << " - " << d.up_sum << " = " << d.value << "\n";
+	return os;
+}
+
+
+ostream& operator<< (ostream& os, const Matrix::Fraction& f) {
+	return os << f.numerator << "/" << f.denominator;
+}
+
+
+int main() {
+
+	menu();
+
+
+
+
+
+	Matrix M2(3, 3);
+	M2(0, 0) = 2;
+    M2(0, 1) = 4;
+    M2(0, 2) = 6;
+    M2(1, 0) = 4;
+    M2(1, 1) = 5;
+    M2(1, 2) = 2;
+    M2(2, 0) = 2;
+    M2(2, 1) = 6;
+    M2(2, 2) = 8;
+	//cout << M2;
+	//cout << "\n";
+
+	//Matrix M(2, 2);
+	//M(0, 0) = 2;
+	//M(0, 1) = 5;
+	//M(1, 0) = 1;
+	//M(1, 1) = 2;
+	//cout << M;
+	//cout << "\n";
+
+	Matrix M5(3, 6);
+	M5(0, 0) = 1;
+	M5(0, 1) = 2;
+	M5(0, 2) = 3;
+	M5(0, 3) = 1;
+	M5(0, 4) = 0;
+	M5(0, 5) = 0;
+
+
+
+	M5(1, 0) = 0;
+	M5(1, 1) = 5;
+	M5(1, 2) = -3;
+	M5(1, 3) = -2;
+	M5(1, 4) = 1;
+	M5(2, 0) = 0;
+
+
+	M5(2, 1) = 0;
+	M5(2, 2) = -2;
+	M5(2, 3) = 1;
+	M5(2, 4) = -1;
+	M5(2, 5) = 0;
+	M5(2, 5) = 1;
+	
+		//cout << M5;
+	//M5.row_reduction();
+
+
+
+	
+
+
+
+
+
+
+
+
+	//M.row_reduction();
+
+	Matrix::Fraction f2;
+	//f2.convertToFraction(14);
+
+	//cout << f2 << "\n";
+	Matrix::Fraction f3(1 , 11);
+
+
+	
+
+
+	//cout <<f3.convertToWhole(f3);
+
+
+	//cout << f3 << "\n";
+
+	//volatile double v1 = 1.0;
+	//volatile double v2 = 3.0;
+	//volatile double result = v1 / v2;
+
+	//cout << result << "\n";
+	//cout << result * 2 << "\n";
+	//cout << fixed <<setprecision(20) << (result * v2) << "\n";
+
+	//if(result * v2 == 1.0){
+	//	cout << "Equal\n";
+	//} else {
+	//	cout << "Not equal\n";
+	//}
+
+
+	//cout << setprecision(20) << 0.3333333333333 * 3;
+
+	
+
+
+
+	/*Matrix::Fraction::convert(14);*/
+
+	
+
+	
+
+	
+	//auto det3 = M2.determinant_3dim();
+	//cout << det3;
+
+	//matrix_info_2D();
+
+	//M.determinant_3dim();
+
+	//auto MT = M.transpose();
+	//cout <<"Transposed:" << MT;
+
+	//M.row_view(0)[1] = 10;
+	return 0;	
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
