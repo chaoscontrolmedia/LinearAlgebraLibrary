@@ -1,2 +1,1 @@
-# LinearAlg
-A Linear Algebra library
+# LinearAlgebraLibrary
