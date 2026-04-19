@@ -699,6 +699,25 @@ void main_menu() {
 	//all_operations(M);
 	//get_determinants(M);
 	
+			switch (info_choice) {
+			case 0: {
+				all_prints(M);
+				break;
+				}
+			case 1: {
+				all_scalars(M);
+				break;
+				}
+			case 2: {
+				all_operations(M);
+				break;
+			}
+			case 3: {
+				get_determinants(M);
+				break;
+			}
+		}
+	}
 
 
 }
