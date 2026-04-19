@@ -38,15 +38,97 @@ class Matrix {
 		return (row_index < 0 || row_index >= row);
 	}
 
+	void check_addition_dims(const Matrix& A, const Matrix& B) {
+		if (A.row != B.row || A.col != B.col) {
+			cout << "Addition dimension mismatch\n";
+			exit(1);
+		}
+	}
 
-	int getRow() { return row; }
-	int getCol() { return col; }
+
+
+	int getRowSize() const { return row; }
+	int getColSize() const { return col; }
 
 
 	
 
 
 	/*Math=============================================*/
+	struct Fraction {
+		double numerator;
+		double denominator;
+
+		Fraction(double num, double denom)
+			: numerator(num), denominator(denom) {
+		}
+		Fraction() : numerator(1), denominator(0) {}
+
+
+		//1/11 = {1/11}
+		// 1*11 = 11 
+		// 11/11 = 1
+		// possibly use neg.exponents
+
+		Fraction convertToFraction(int n) {
+			return Fraction(1, n);
+		}
+
+		long long euclidean_algorithm(long long a, long long b) {
+			while (b != 0) {
+				long long temp = b;
+				b = a % b;
+				a = temp;
+			}
+			return a >= 0 ? a : -a;
+		}
+
+
+
+		//Fraction toFraction(double value, double epsilon = 1e-10) {
+		   // long long denom = 1;
+		   // while (abs(value * denom - round(value * denom)) > epsilon) {
+		   //	 denom *= 10;
+		   // }
+		   // long long num = round(value * denom);
+		   // long long gcd = euclidean_algorithm(num, denom);
+		   // return Fraction(num / gcd, denom / gcd);
+		//}
+
+
+		Fraction toFraction(double value, double epsilon = 1e-10) {
+			long long num = 1, denom = 0;
+			long long prev_num = 0, prev_denom = 1;
+			double x = value;
+
+			for (int i = 0; i < 50; i++) {
+				long long a = (long long)x;
+				long long new_num = a * num + prev_num;
+				long long new_denom = a * denom + prev_denom;
+
+				if (abs(value - (double)new_num / new_denom) < epsilon) {
+					return Fraction(new_num, new_denom);
+				}
+
+				prev_num = num; prev_denom = denom;
+				num = new_num; denom = new_denom;
+				x = 1.0 / (x - a);
+			}
+			return Fraction(num, denom);
+		}
+
+
+
+		double convertToWhole(Fraction f) {
+			return f.numerator * f.denominator;
+		}
+		double scaleTo1(int n) {
+			return 1.0 / n;
+		}
+
+	};
+
+
 
 	////Core math
 	double trace() const {
@@ -181,10 +263,6 @@ class Matrix {
 		}
 	}
 
-
-
-
-
 	Matrix transpose(){
        Matrix T(col, row);
        for (int i = 0; i< row; i++){
@@ -230,119 +308,92 @@ class Matrix {
 		 return R;
 	 }
 
+	 struct Det2Result {
+		 double down;
+		 double up;
+		 double value;
+	 };
 
-	 struct Fraction {
-		 double numerator;
-		 double denominator;
+	 Det2Result determinant_2dim() const {
+		 double down = (*this)(0, 0) * (*this)(1, 1);
+		 double up = (*this)(0, 1) * (*this)(1, 0);
 
-		 Fraction(double num, double denom) 
-			 : numerator(num), denominator(denom) {}
-		 Fraction() : numerator(1), denominator(0) {}
+		 return { down, up, down - up };
+	 }
 
-
-		 //1/11 = {1/11}
-		 // 1*11 = 11 
-		 // 11/11 = 1
-		 // possibly use neg.exponents
-
-		 Fraction convertToFraction(int n) {
-			 return Fraction(1, n);
-		 }
-
-		 long long euclidean_algorithm(long long a, long long b) {
-			 while (b != 0) {
-				 long long temp = b;
-				 b = a % b;
-				 a = temp;
-			 }
-			 return a >= 0 ? a : -a;
-		 }
-
-
-
-		 //Fraction toFraction(double value, double epsilon = 1e-10) {
-			// long long denom = 1;
-			// while (abs(value * denom - round(value * denom)) > epsilon) {
-			//	 denom *= 10;
-			// }
-			// long long num = round(value * denom);
-			// long long gcd = euclidean_algorithm(num, denom);
-			// return Fraction(num / gcd, denom / gcd);
-		 //}
-
-
-		 Fraction toFraction(double value, double epsilon = 1e-10) {
-			 long long num = 1, denom = 0;
-			 long long prev_num = 0, prev_denom = 1;
-			 double x = value;
-
-			 for (int i = 0; i < 50; i++) {
-				 long long a = (long long)x;
-				 long long new_num = a * num + prev_num;
-				 long long new_denom = a * denom + prev_denom;
-
-				 if (abs(value - (double)new_num / new_denom) < epsilon) {
-					 return Fraction(new_num, new_denom);
-				 }
-
-				 prev_num = num; prev_denom = denom;
-				 num = new_num; denom = new_denom;
-				 x = 1.0 / (x - a);
-			 }
-			 return Fraction(num, denom);
-		 }
-
-
-
-		 double convertToWhole(Fraction f) {
-			 return f.numerator * f.denominator;
-		 }
-		 double scaleTo1(int n) {
-			 return 1.0 / n;
-		 }	
+	 struct Det3Result {
+		 double down_diagonals[3];
+		 double up_diagonals[3];
+		 double down_sum;
+		 double up_sum;
+		 double value;
 
 	 };
 
+	 Det3Result determinant_3dim() const {
+		 // pure computation, no cout
+		 Det3Result result;
+		 result.down_sum = 0;
+		 result.up_sum = 0;
+		 for (int i = 0; i < 3; i++) {
+			 result.down_diagonals[i] = down_product(i);
+			 result.down_sum += result.down_diagonals[i];
+			 result.up_diagonals[i] = up_product(i);
+			 result.up_sum += result.up_diagonals[i];
+		 }
+		 result.value = result.down_sum - result.up_sum;
+		 return result;
+	 }
 
-
-	struct Det2Result {
-		double down;
-		double up;
-		double value;
-	};
-
-	Det2Result determinant_2dim() const {
-		double down = (*this)(0, 0) * (*this)(1, 1);
-		double up = (*this)(0, 1) * (*this)(1, 0);
-
-		return { down, up, down - up };
+	void determinant2d_info(Matrix &M) {
+		cout << "\nDown product starting at 0 = " << M.down_product(0);
+		cout << "\nUp product starting at 0 = " << M.up_product(0);
+		auto d = M.determinant_2dim();
+		cout << "\nDeterminant" << d.down << " - " << d.up << " = " << d.value;
 	}
 
-	struct Det3Result {
-		double down_diagonals[3];
-		double up_diagonals[3];
-		double down_sum;
-		double up_sum;
-		double value;
+	//     	int determinant_3dim() {
+//        if (row != 3 || col != 3) {
+//            cout << "Matrix must be 3^2 size.";
+//            exit(1);
+//        }
 
-	};
+//    	int down_sum = 0;
+//    	int up_sum = 0;
 
-	Det3Result determinant_3dim() const {
-		// pure computation, no cout
-		Det3Result result;
-		result.down_sum = 0;
-		result.up_sum = 0;
-		for (int i = 0; i < 3; i++) {
-			result.down_diagonals[i] = down_product(i);
-			result.down_sum += result.down_diagonals[i];
-			result.up_diagonals[i] = up_product(i);
-			result.up_sum += result.up_diagonals[i];
-		}
-		result.value = result.down_sum - result.up_sum;
-		return result;
-	}
+//        cout << "\n";
 
 
+//        for (int i = 0; i < row; i++) {
+//            cout << "\nDiagonal " << i << " : ";
+//    		print_down_diagonal(i);
+
+//            int d = down_product(i);
+//    		down_sum += d;
+//    		cout << "Product: " << d << "\n";
+//    		cout << "Down sum so far: " << down_sum << "\n";
+
+//        }
+//        for (int i = 0; i < row; i++) {
+//            cout << "\nDiagonal " << i << " : ";
+//            print_up_diagonal(i);
+
+//            int u = up_product(i);
+//            up_sum += u;
+//            cout << "Product: " << u    << "\n";
+//            cout << "Up sum so far: " << up_sum << "\n";
+
+//        }
+
+//        cout << "\nDownward diagonal sum: " << down_sum << "\n";
+//        cout << "\nUpward diagonal sum: " << up_sum << "\n";
+
+//        cout << "\nDeterminant = ";
+
+
+//        return (down_sum - up_sum);
+
+//    }
 
 
 
@@ -351,16 +402,8 @@ class Matrix {
 
 
 
-	void linear_independence(double determinant) {
-		cout << "This matrix is ";
-		if (determinant != 0) {
-			cout << "linearly independent.\n";
-		} else {
-			cout << "linearly dependent.\n";
-		}	
-		return;
-	}
 
+	/*===========================================Print functions=======================================================================*/
 
 	 //Member function. Must be called on an instance of the Matrix class. Prints the specified row of the matrix.
 	 void print_row(int row_index) const {
@@ -404,7 +447,7 @@ class Matrix {
 		 cout << "\n";
 	 }
 
-	 void print_full_matrix() {
+	 void print_full_matrix() const {
 		 for (int i = 0; i < row; i++) {
 			 for (int j = 0; j < col; j++) {
 				 cout << (*this)(i, j) << ' ';
@@ -433,42 +476,66 @@ class Matrix {
 		 }
 	 }
 
+	 static Matrix add(const Matrix& A, const Matrix& B) {
+		 cout << "Matrix A:\n";A.print_full_matrix();
+		 cout << "Matrix B:\n"; B.print_full_matrix();
+		 if (A.getRowSize() != B.getRowSize() || A.getColSize() != B.getColSize()) {
+			 cout << "Matrices cannot be added\n";
+			 exit(1);
+		 }
+		 Matrix C(A.getRowSize(), A.getColSize());
+		 for (int i = 0; i < A.getRowSize(); i++) {
+			 for (int j = 0; j < A.getColSize(); j++) {
+				 C.data[i][j] = A.data[i][j] + B.data[i][j];
+			 }
+		 }
+		 return C;
+	 }
+
+	 static Matrix multiply(const Matrix& A, const Matrix& B) {
+		 if (A.col != B.row) {
+			 cout << "Matrices cannot be multiplied\n";
+			 exit(1);
+		 }
+		 Matrix C(A.row, B.col);
+		 for (int i = 0; i < A.row; i++) {
+			 for (int j = 0; j < B.col; j++) {
+				 C(i, j) = 0;
+				 for (int k = 0; k < A.col; k++) {
+					 C(i, j) += A(i, k) * B(k, j);
+				 }
+			 }
+		 }
+
+		 return C;
+	 }
+
+
+
+
+
+
+
+	 void linear_independence(double determinant) {
+		 cout << "This matrix is ";
+		 if (determinant != 0) {
+			 cout << "linearly independent.\n";
+		 }
+		 else {
+			 cout << "linearly dependent.\n";
+		 }
+		 return;
+	 }
+	 void test() {
+
+		 print_vector(0);
+
+	 }
+
+
 };
 
 /*====================Menu Utilities===============================*/
-void matrix_info_2D() {
-	Matrix M(2, 2);
-	M(0, 0) = 1;
-	M(0, 1) = 5;
-	M(1, 0) = 9;
-	M(1, 1) = 7;
-
-	cout << M;
-
-	cout << "\nRow 0 = ";
-	M.print_row(0);
-
-	cout << "\nDown diagonal starting at 0 = ";
-	M.print_down_diagonal(0);
-
-
-	cout << "\nUp diagonal starting at 0 = ";
-	M.print_up_diagonal(0);
-
-
-	cout << "\nVector matrix at row 1 = ";
-	M.print_vector(1);
-
-	cout << "\nTrace = " << M.trace();
-
-	cout << "\nDown product starting at 0 = " << M.down_product(0);
-	cout << "\nUp product starting at 0 = " << M.up_product(0);
-
-
-
-	auto d = M.determinant_2dim();
-	cout << "\nDeterminant" << d.down << " - " << d.up << " = " << d.value;
-}
 
 
 
@@ -476,10 +543,10 @@ void matrix_info_2D() {
 
 
 //Main menu functions
-Matrix create_matrix() {
+Matrix create_user_matrix() {
 	int cols = 0;
 	int rows = 0;
-	int choice;
+	//int choice;
 
 	cout << "Populate matrix\n";
 	cout << "Cols:";
@@ -489,7 +556,6 @@ Matrix create_matrix() {
 	Matrix M(rows, cols);
 	M.user_populate();
 	cout << "\nResulting Matrix:\n";
-	M.print_full_matrix();
 	return M;
 }
 
@@ -497,46 +563,83 @@ Matrix generate_random_matrix() {
 	int cols = 0;
 	int rows = 0;
 	int random_limit = 0;
-	cout << "Cols?";
+	cout << "Cols? ";
 	cin >> cols;
-	cout << "Rows?";
+	cout << "Rows? ";
 	cin >> rows;
 	Matrix M(rows, cols);
-	cout << "Random limit:";
+	cout << "Random limit: ";
 	cin >> random_limit;
-	cout << "\nResulting Matrix:\n";
+	cout << "\nResulting Matrix: \n";
 	M.random_populate(random_limit);
 	return M;
 }
 
+void generate_matrix(Matrix& M) {
+	int gen_choice;
+	cout << "User generate(0)\n";
+	cout << "Random_generate matrix(1)\n";
+	cin >> gen_choice;
+
+	if (gen_choice == 0) {
+		M = create_user_matrix();
+		M.print_full_matrix();
+	}
+
+	if (gen_choice == 1) {
+		M = generate_random_matrix();
+		M.print_full_matrix();
+	}
+
+}
+
+
+
+
+/*======================*Subprograms==============================*/
 
 
 //Matrix passed by reference	
 void all_prints( const Matrix&M) {
 	int print_choice;
+	int row_choice;
+	int col_choice;
+	int down_diag_choice;
+	int up_diag_choice;
+	
+
 	cout << "Prints: \n";
-	cout << "1.Print Row\n";
-	cout << "2.Print column\n";
-	cout << "3.Print down diagonal\n";
-	cout << "4.Print up diagonal\n";
+	cout << "Print Row(0)\n";
+	cout << "2.Print column(1)\n";
+	cout << "3.Print down diagonal(2)\n";
+	cout << "4.Print up diagonal(3)\n";
 	cin >> print_choice;
 
 
 	switch (print_choice) {
 		case 0: {
-			M.print_row(0);
+			cout << "Choose row number: ";
+			cin >> row_choice;
+			M.print_row(row_choice);
 			break;
 		}
 		case 1: {
-			M.print_vector(0);
+			cout << "Vector:(0- ";
+			//cout <<M.getCol() << " ";
+			cin >> col_choice;
+			M.print_vector(col_choice);
 			break;
 		}
 		case 2: {
-			M.print_down_diagonal(0);
+			cout << "Down Diagonal: ";
+			cin >> down_diag_choice;
+			M.print_down_diagonal(down_diag_choice);
 			break;
 		}
 		case 3: {
-			M.print_up_diagonal(0);
+			cout << "Up Diagonal: " << print_choice;
+			cin >> up_diag_choice;
+			M.print_up_diagonal(up_diag_choice);
 			break;
 		}
 	}
@@ -544,12 +647,12 @@ void all_prints( const Matrix&M) {
 void all_scalars(Matrix& M) {
 	int scale_choice;
 	cout << "Scalars:\n";
-	cout << "\n7. Scale full matrix\n";
-	cout << "\n8. Scale column\n";
-	cout << "\n9. Scale row\n";
-	cout << "\n13. Scalar multiply full matrix\n";
-	cout << "\n14. Vector-matrix (get column as vector)\n";
-	cout << "\n15. Row-matrix (get row as vector)\n";
+	cout << "Scale full matrix\n";
+	cout << "Scale column\n";
+	cout << "Scale row\n";
+	cout << "Scalar multiply full matrix\n";
+	cout << "Vector-matrix (get column as vector)\n";
+	cout << "Row-matrix (get row as vector)\n";
 
 	cin >> scale_choice;
 
@@ -560,32 +663,27 @@ void all_scalars(Matrix& M) {
 			break;
 			}
 		case 1: {
-			M.scale_col(0, 2);
+			M.scale_col(scale_choice, 2);
 			M.print_full_matrix();
 			break;
 		}
 		case 2: {
-			M.scale_row(0, 2);
+			M.scale_row(0, scale_choice);
 			M.print_full_matrix();
 			break;
 		}
 		case 3: {
-			M = M.scalar_multiply_full_matrix(2);
+			M = M.scalar_multiply_full_matrix(scale_choice);
 			M.print_full_matrix();
 			break;
 		}
 		case 4: {
-  			M = M.vector_matrix(0);
+  			M = M.vector_matrix(scale_choice);
   			M.print_full_matrix();
   			break;
 		}
 		case 5: {
-  			M = M.row_matrix(0);
-  			M.print_full_matrix();
-  			break;
-		}
-		case 6: {
-  			M.reduce_row_to_1(0);
+  			M = M.row_matrix(scale_choice);
   			M.print_full_matrix();
   			break;
 		}
@@ -593,32 +691,73 @@ void all_scalars(Matrix& M) {
 }
 void all_operations(Matrix& M) {
 	int operations_choice;
-
-
+	int source_row;
+	int target_row;
 	cout << "Operations:\n";
-	cout << "\n9. Add row to another row\n";
-	cout << "\n10. Subtract row from another row\n";
-	cout << "\n12. Transpose matrix\n";
+	cout << "Add row to another row(0)\n";
+	cout << "Subtract row from another row(1)\n";
+	cout << "Reduce row to 1(2)\n";
+	cout << "Transpose matrix(3)\n";
+	cout << "Gauss Jordan Elimination(4);";
+	cout << "Add to another matrix(5)";
+	cout << "Multiply to another matrix(6)";
+	cout << "Trace(7)";
 
 	cin >> operations_choice;
 
 	switch (operations_choice) {
 		case 0: {
-			M.row_add(0, 1);
+			cout << "Choose source";
+			cin >> source_row;
+			cout << "target row";
+			cin >> target_row;
+			M.row_add(source_row, target_row);
 			M.print_full_matrix();
 			break;
 		}
 
 		case 1: {
-			M.row_subtract(0, 1);
+			cout << "Choose source";
+			cin >> source_row;
+			cout << "target row";
+			cin >> target_row;
+			M.row_subtract(source_row, target_row);
 			M.print_full_matrix();
 			break;
 		}
 
 		case 2: {
-			M.transpose();
+			M.reduce_row_to_1(0);
 			M.print_full_matrix();
 			break;
+		}
+
+		case 3: {
+			auto MT = M.transpose();
+			cout << "Transposed:" << MT;
+			MT.print_full_matrix();
+			break;
+		}
+		case 4: {
+			Matrix N;
+			generate_matrix(N);
+			cout << "2nd matrix";
+			auto MN =M.add(M,N);
+			cout << "Result:";
+			cout << MN;
+			break;
+		}
+		case 5: {
+			Matrix P;
+			generate_matrix(P);
+			cout << "2nd Matrix";
+			auto MP = M.multiply(M, P);
+			cout << "Result:";
+			cout << MP;
+			break;
+		}
+		case 6: {
+			cout << "\nTrace = " << M.trace();
 		}
 
 	}
@@ -626,98 +765,79 @@ void all_operations(Matrix& M) {
 }
 
 
-void get_determinants(Matrix& M) {
-	if (M.getRow() == 2 && M.getCol() == 2) {
-		M.determinant_2dim();
-		M.print_full_matrix();
-	}
-	if (M.getRow() == 3 && M.getCol() == 3) {
-		M.determinant_3dim();
-		M.print_full_matrix();
-	}
-	if (M.getRow() > 3 && M.getCol() > 3){
-		cout << "NxN version soon";
-	}
-
-}
-
+//void get_determinants(Matrix& M) {
+//	if (M.getRow() == 2 && M.getCol() == 2) {
+//		M.matrix_info_2d();
+//	}
+//	if (M.getRow() == 3 && M.getCol() == 3) {
+//		M.determinant_3dim();
+//	}
+//	if (M.getRow() > 3 && M.getCol() > 3){
+//		cout << "NxN version soon";
+//	}
+//
+//}
 
 
 
 
 
 void main_menu() {
-	int main_menu_choice;
+	int info_choice;
+	
 	Matrix M;
 
 	cout << "Chaos Control Media-Linear Algebra Program\n";
 	cout << "Accept the Darkness.\n\n";
-
-
-	while(true){
-		cout << "1. Create Matrix";
-		int gen_choice;
-		cout << "User generate or random_generate";
-		cin >> gen_choice;
-
-		if (gen_choice == 0) {
-			M = create_matrix();
-			M.print_full_matrix();
-		}
-
-		if (gen_choice == 1) {
-			M = generate_random_matrix();
-			M.print_full_matrix();
-		}
-	}
-
-
-
-
-
-
-	cout << "2.Show all prints";
-	//all_prints(M);
-
-	cout << "3. Show all scalars";
-	cout << "4. Show all operations\n";
-	cout << "5. Get determinants";
-
-
-
-	
-	
-
-
-
-	
-
-	//Branching paths based on 2d vs 3d
-	//Matrix M = create_matrix();
-	//all_prints(M);
-	//all_scalars(M);
-	//all_operations(M);
-	//get_determinants(M);
+	generate_matrix(M);
+	while(true){ 
+			cout << "\nShow all prints(0)\n";
+			cout << "Show all scalars(1)\n";
+			cout << "Show all operations(2)\n";
+			cout << "Get determinants(3)\n";
+			cin >> info_choice;
 	
 			switch (info_choice) {
 			case 0: {
 				all_prints(M);
 				break;
 				}
+
 			case 1: {
 				all_scalars(M);
 				break;
 				}
+
 			case 2: {
 				all_operations(M);
 				break;
 			}
 			case 3: {
-				get_determinants(M);
+				//get_determinants(M);
 				break;
 			}
 		}
 	}
+
+
+
+
+
+
+	
+	
+
+
+
+
+	
+	
+
+
+
+	
+
+	
 
 
 }
@@ -725,7 +845,7 @@ void main_menu() {
 
 
 
-
+/*========================Overloaded Ops===========================*/
 ostream& operator<<(std::ostream& os, const Matrix& M) {
 	for (int i = 0; i < M.row; i++) {
 		for (int j = 0; j < M.col; j++) {
@@ -748,19 +868,22 @@ ostream& operator<< (ostream& os, const Matrix::Fraction& f) {
 
 
 int main() {
+	Matrix E(2, 2);
+	cout << "Matrix must be 2^2 size.";
+	E(0, 0) = 2;
+	E(0, 1) = 3;
+	E(1, 0) = 4;
+	E(1, 1) = 5;
+	E.test();
+	E.print_full_matrix();
+	cout << "Row Sixe:" << E.getRowSize();
 
-	main_menu();
+	//main_menu();
 
-	Matrix M2(3, 3);
-	M2(0, 0) = 2;
-    M2(0, 1) = 4;
-    M2(0, 2) = 6;
-    M2(1, 0) = 4;
-    M2(1, 1) = 5;
-    M2(1, 2) = 2;
-    M2(2, 0) = 2;
-    M2(2, 1) = 6;
-    M2(2, 2) = 8;
+	//Matrix M2(2, 1);
+	//M2.test();
+
+
 	//cout << M2;
 	//cout << "\n";
 
@@ -772,30 +895,7 @@ int main() {
 	//cout << M;
 	//cout << "\n";
 
-	Matrix M5(3, 6);
-	M5(0, 0) = 1;
-	M5(0, 1) = 2;
-	M5(0, 2) = 3;
-	M5(0, 3) = 1;
-	M5(0, 4) = 0;
-	M5(0, 5) = 0;
 
-
-
-	M5(1, 0) = 0;
-	M5(1, 1) = 5;
-	M5(1, 2) = -3;
-	M5(1, 3) = -2;
-	M5(1, 4) = 1;
-	M5(2, 0) = 0;
-
-
-	M5(2, 1) = 0;
-	M5(2, 2) = -2;
-	M5(2, 3) = 1;
-	M5(2, 4) = -1;
-	M5(2, 5) = 0;
-	M5(2, 5) = 1;
 	
 		//cout << M5;
 	//M5.row_reduction();
