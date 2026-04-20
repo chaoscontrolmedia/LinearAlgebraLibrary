@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <iomanip>
+#include <fstream>
 
 using namespace std;
 
@@ -19,6 +20,9 @@ class Matrix {
 
 	public:
 	/*Definition:Initializer List*/
+		int row_choice;
+		int col_choice;
+
 	Matrix() : row(0), col(0), data(0, vector<double>(0, 0)) {}
 	Matrix(int r, int c) : row(r), col(c), data(r, vector<double>(c, 0)) {}
 
@@ -49,6 +53,8 @@ class Matrix {
 
 	int getRowSize() const { return row; }
 	int getColSize() const { return col; }
+	//int rowChoice() const { return row_choice; }
+	//int colChoice() const { return col_choice; }
 
 
 	
@@ -219,7 +225,7 @@ class Matrix {
 		}
 	}
 
-	void row_reduction() {
+	void gauss_jordan_elimination() {
 		int source, target;
 		int scalar;
 		int scalar2;
@@ -308,6 +314,40 @@ class Matrix {
 		 return R;
 	 }
 
+	 static Matrix add(const Matrix& A, const Matrix& B) {
+		 cout << "Matrix A:\n";A.print_full_matrix();
+		 cout << "Matrix B:\n"; B.print_full_matrix();
+		 if (A.getRowSize() != B.getRowSize() || A.getColSize() != B.getColSize()) {
+			 cout << "Matrices cannot be added\n";
+			 exit(1);
+		 }
+		 Matrix C(A.getRowSize(), A.getColSize());
+		 for (int i = 0; i < A.getRowSize(); i++) {
+			 for (int j = 0; j < A.getColSize(); j++) {
+				 C.data[i][j] = A.data[i][j] + B.data[i][j];
+			 }
+		 }
+		 return C;
+	 }
+
+	 static Matrix multiply(const Matrix& A, const Matrix& B) {
+		 if (A.col != B.row) {
+			 cout << "Matrices cannot be multiplied\n";
+			 exit(1);
+		 }
+		 Matrix C(A.row, B.col);
+		 for (int i = 0; i < A.row; i++) {
+			 for (int j = 0; j < B.col; j++) {
+				 C(i, j) = 0;
+				 for (int k = 0; k < A.col; k++) {
+					 C(i, j) += A(i, k) * B(k, j);
+				 }
+			 }
+		 }
+
+		 return C;
+	 }
+
 	 struct Det2Result {
 		 double down;
 		 double up;
@@ -319,6 +359,13 @@ class Matrix {
 		 double up = (*this)(0, 1) * (*this)(1, 0);
 
 		 return { down, up, down - up };
+	 }
+
+	 void determinant2d_info(Matrix& M) {
+		 cout << "\nDown product starting at 0 = " << M.down_product(0);
+		 cout << "\nUp product starting at 0 = " << M.up_product(0);
+		 auto d = M.determinant_2dim();
+		 cout << "\nDeterminant" << d.down << " - " << d.up << " = " << d.value;
 	 }
 
 	 struct Det3Result {
@@ -345,55 +392,50 @@ class Matrix {
 		 return result;
 	 }
 
-	void determinant2d_info(Matrix &M) {
-		cout << "\nDown product starting at 0 = " << M.down_product(0);
-		cout << "\nUp product starting at 0 = " << M.up_product(0);
-		auto d = M.determinant_2dim();
-		cout << "\nDeterminant" << d.down << " - " << d.up << " = " << d.value;
-	}
-
-	//     	int determinant_3dim() {
-//        if (row != 3 || col != 3) {
-//            cout << "Matrix must be 3^2 size.";
-//            exit(1);
-//        }
-
-//    	int down_sum = 0;
-//    	int up_sum = 0;
-
-//        cout << "\n";
 
 
-//        for (int i = 0; i < row; i++) {
-//            cout << "\nDiagonal " << i << " : ";
-//    		print_down_diagonal(i);
+	    int determinant_3dim_info() {
+        if (row != 3 || col != 3) {
+            cout << "Matrix must be 3^2 size.";
+            exit(1);
+        }
 
-//            int d = down_product(i);
-//    		down_sum += d;
-//    		cout << "Product: " << d << "\n";
-//    		cout << "Down sum so far: " << down_sum << "\n";
+    	int down_sum = 0;
+    	int up_sum = 0;
 
-//        }
-//        for (int i = 0; i < row; i++) {
-//            cout << "\nDiagonal " << i << " : ";
-//            print_up_diagonal(i);
-
-//            int u = up_product(i);
-//            up_sum += u;
-//            cout << "Product: " << u    << "\n";
-//            cout << "Up sum so far: " << up_sum << "\n";
-
-//        }
-
-//        cout << "\nDownward diagonal sum: " << down_sum << "\n";
-//        cout << "\nUpward diagonal sum: " << up_sum << "\n";
-
-//        cout << "\nDeterminant = ";
+        cout << "\n";
 
 
-//        return (down_sum - up_sum);
+        for (int i = 0; i < row; i++) {
+            cout << "\nDiagonal " << i << " : ";
+    		print_down_diagonal(i);
 
-//    }
+            int d = down_product(i);
+    		down_sum += d;
+    		cout << "Product: " << d << "\n";
+    		cout << "Down sum so far: " << down_sum << "\n";
+
+        }
+        for (int i = 0; i < row; i++) {
+            cout << "\nDiagonal " << i << " : ";
+            print_up_diagonal(i);
+
+            int u = up_product(i);
+            up_sum += u;
+            cout << "Product: " << u    << "\n";
+            cout << "Up sum so far: " << up_sum << "\n";
+
+        }
+
+        cout << "\nDownward diagonal sum: " << down_sum << "\n";
+        cout << "\nUpward diagonal sum: " << up_sum << "\n";
+
+        cout << "\nDeterminant = ";
+
+
+        return (down_sum - up_sum);
+
+    }
 
 
 
@@ -408,7 +450,7 @@ class Matrix {
 	 //Member function. Must be called on an instance of the Matrix class. Prints the specified row of the matrix.
 	 void print_row(int row_index) const {
 		 if (bounds_check(row_index)) {
-			 cout << "Invalid column index.";
+			 cout << "Invalid row index.";
 			 exit(1);
 		 }
 
@@ -454,7 +496,9 @@ class Matrix {
 			 }
 			 cout << '\n';
 		 }
-	 }	
+	 }
+
+
 
 
 	 ////Belongs to the Matrix class.
@@ -476,39 +520,36 @@ class Matrix {
 		 }
 	 }
 
-	 static Matrix add(const Matrix& A, const Matrix& B) {
-		 cout << "Matrix A:\n";A.print_full_matrix();
-		 cout << "Matrix B:\n"; B.print_full_matrix();
-		 if (A.getRowSize() != B.getRowSize() || A.getColSize() != B.getColSize()) {
-			 cout << "Matrices cannot be added\n";
-			 exit(1);
+	 void writeMatrixToFile(const string& filename) const {
+		 ofstream outFile(filename);
+		 if (!outFile) {
+			 cout << "Error opening file for writing: " << filename << "\n";
+			 return;
 		 }
-		 Matrix C(A.getRowSize(), A.getColSize());
-		 for (int i = 0; i < A.getRowSize(); i++) {
-			 for (int j = 0; j < A.getColSize(); j++) {
-				 C.data[i][j] = A.data[i][j] + B.data[i][j];
+		 for (int i = 0; i < row; i++) {
+			 for (int j = 0; j < col; j++) {
+				 outFile << (*this)(i, j) << ' ';
 			 }
+			 outFile << '\n';
 		 }
-		 return C;
+		 outFile.close();
 	 }
 
-	 static Matrix multiply(const Matrix& A, const Matrix& B) {
-		 if (A.col != B.row) {
-			 cout << "Matrices cannot be multiplied\n";
-			 exit(1);
+	 void readMatrixFromFile(const string& filename) {
+		 ifstream inFile(filename);
+		 if (!inFile) {
+			 cout << "Error opening file for reading: " << filename << "\n";
+			 return;
 		 }
-		 Matrix C(A.row, B.col);
-		 for (int i = 0; i < A.row; i++) {
-			 for (int j = 0; j < B.col; j++) {
-				 C(i, j) = 0;
-				 for (int k = 0; k < A.col; k++) {
-					 C(i, j) += A(i, k) * B(k, j);
-				 }
+		 for (int i = 0; i < row; i++) {
+			 for (int j = 0; j < col; j++) {
+				 inFile >> (*this)(i, j);
 			 }
 		 }
-
-		 return C;
+		 inFile.close();
 	 }
+
+
 
 
 
@@ -533,6 +574,161 @@ class Matrix {
 	 }
 
 
+	 //Main menu functions
+
+
+
+
+	 //Matrix I/O
+
+	 //Main menu functions
+//Level 0 functions that return a Matrix object. 
+// These will be called in the main menu
+
+	 static Matrix create_user_matrix() {
+		 int cols = 0;
+		 int rows = 0;
+		 //int choice;
+
+		 cout << "Populate matrix\n";
+		 cout << "Cols:";
+		 cin >> cols;
+		 cout << "\nRows:";
+		 cin >> rows;
+		 Matrix M(rows, cols);
+		 M.user_populate();
+		 cout << "\nResulting Matrix:\n";
+		 return M;
+	 }
+
+	 static void save_matrix(Matrix& M) {
+		 string filename;
+		 int filetype;
+
+
+
+		 M.print_full_matrix();
+		 cout << "Filename: ";
+		 cin >> filename;
+		 /* may add support for different file types and writing to difff. directories*/
+		 cout << "Filetype:\n";
+		 cin >> filetype;
+		 switch (filetype) {
+		 case 0:
+		 {
+			 string txtFile = filename + ".txt";
+			 cout << "Saving as .txt. \n";
+			 M.writeMatrixToFile(txtFile);
+			 break;
+		 }
+		 case 1:
+		 {
+			 string csvFile = filename + ".csv";
+			 cout << "Saving as .csv. \n";
+			 M.writeMatrixToFile(csvFile);
+			 break;
+		 }
+		 case 2:
+		 {
+			 string jsonFile = filename + ".json";
+			 cout << "Saving as .json. \n";
+			 M.writeMatrixToFile(jsonFile);
+			 break;
+
+		 }
+		 default:
+		 {
+			 cout << "Invalid file type choice. Defaulting to .txt\n";
+			 string txtFile = filename + ".txt";
+			 M.writeMatrixToFile(txtFile);
+			 break;
+		 }
+		 }
+	 }
+
+
+	 static Matrix load_matrix() {
+		 string filename;
+		 int filetype;
+		 cout << "Filename: ";
+		 cin >> filename;
+		 Matrix M;
+		 cout << "Filetype:\n";
+		 cin >> filetype;
+		 switch (filetype) {
+		 case 0:
+		 {
+			 cout << "Loading from .txt. \n";
+			 M.readMatrixFromFile(filename + ".txt");
+			 break;
+		 }
+		 case 1:
+		 {
+			 cout << "Loading from .csv. \n";
+			 M.readMatrixFromFile(filename + ".csv");
+			 break;
+		 }
+		 case 2:
+		 {
+			 cout << "Loading from .json. \n";
+			 M.readMatrixFromFile(filename + ".json");
+			 break;
+		 }
+		 default:
+		 {
+			 cout << "Invalid file type choice. Defaulting to .txt\n";
+			 M.readMatrixFromFile(filename + ".txt");
+			 break;
+		 }
+		 }
+		 return M;
+	 }
+
+
+	 static Matrix update_matrix(Matrix& M) {
+		 int col_index;
+		 int row_index;
+		 cout << "Choose col and row";
+		 cin >> col_index >> row_index;
+		 cout << "Current value: " << M(row_index, col_index) << "\n";
+
+		 //Replace value at col and row index with user input
+		 double new_value;
+		 cout << "Enter new value: ";
+		 cin >> new_value;
+		 M(row_index, col_index) = new_value;
+	 }
+
+
+
+
+	 //Random generation of a matrix. User specifies dimensions and random limit.
+	 // Matrix is populated with random integers from 0 to random_limit-1.
+	 static Matrix generate_random_matrix() {
+		 int cols = 0;
+		 int rows = 0;
+		 int random_limit = 0;
+		 cout << "Cols? ";
+		 cin >> cols;
+		 cout << "Rows? ";
+		 cin >> rows;
+		 Matrix M(rows, cols);
+		 cout << "Random limit: ";
+		 cin >> random_limit;
+		 cout << "\nResulting Matrix: \n";
+		 M.random_populate(random_limit);
+		 return M;
+	 }
+
+
+
+
+
+
+
+
+
+
 };
 
 /*====================Menu Utilities===============================*/
@@ -542,52 +738,48 @@ class Matrix {
 
 
 
-//Main menu functions
-Matrix create_user_matrix() {
-	int cols = 0;
-	int rows = 0;
-	//int choice;
 
-	cout << "Populate matrix\n";
-	cout << "Cols:";
-	cin >> cols;
-	cout << "\nRows:";
-	cin >> rows;
-	Matrix M(rows, cols);
-	M.user_populate();
-	cout << "\nResulting Matrix:\n";
-	return M;
-}
 
-Matrix generate_random_matrix() {
-	int cols = 0;
-	int rows = 0;
-	int random_limit = 0;
-	cout << "Cols? ";
-	cin >> cols;
-	cout << "Rows? ";
-	cin >> rows;
-	Matrix M(rows, cols);
-	cout << "Random limit: ";
-	cin >> random_limit;
-	cout << "\nResulting Matrix: \n";
-	M.random_populate(random_limit);
-	return M;
-}
 
+
+//A function for how the user generates the matrix.
+//They can choose to load a matrix from a file, 
+// create a matrix by inputting values, 
+// or generate a random matrix.
+// The generated or loaded matrix is printed to the console.
 void generate_matrix(Matrix& M) {
 	int gen_choice;
-	cout << "User generate(0)\n";
-	cout << "Random_generate matrix(1)\n";
+	int load_choice;
+	int update_choice;
+	cout << "Load matrix? Yes(0) | No(1)\n";
+	cin >> load_choice;
+	if(load_choice == 0){
+		M =Matrix::load_matrix();
+		M.print_full_matrix();
+		return;
+	}
+
+	cout << "Choose matrix generation method:\n";
+	cout << "User(0) | Random(1) | Save(2)\n";
 	cin >> gen_choice;
 
 	if (gen_choice == 0) {
-		M = create_user_matrix();
+		M =Matrix::create_user_matrix();
 		M.print_full_matrix();
 	}
 
 	if (gen_choice == 1) {
-		M = generate_random_matrix();
+		M=Matrix::generate_random_matrix();
+		M.print_full_matrix();
+	}
+	if(gen_choice == 2){
+		Matrix::save_matrix(M);
+	}
+
+	cout << "Update matrix? Yes(0) | No(1)\n";
+	cin >> update_choice;
+	if (update_choice == 0) {
+		Matrix::update_matrix(M);
 		M.print_full_matrix();
 	}
 
@@ -597,37 +789,69 @@ void generate_matrix(Matrix& M) {
 
 
 /*======================*Subprograms==============================*/
+void row_menu(Matrix& M) {
+	vector<int> row_indices;
+
+
+
+	cout << "Choose row number: ";
+	
+	cin >> M.row_choice;
+	cout << "->r" << M.row_choice << "=";
+	M.print_row(M.row_choice);
+	cout << "\nRS = span{";
+	for (int i = 0; i < M.getRowSize(); i++) {
+		if (i < M.getRowSize() - 1) cout << "->r" << i << ",";
+	}
+	cout << "}\n=";
+
+	for (int i = 0; i < M.getRowSize(); i++) {
+		M.print_row(i);
+		if (i < M.getRowSize() - 1) cout << ", ";
+	}
+	
+	
+	//for (int i = 1; i < M.getRowSize(); i++) {
+	//	cout << "" << "->r" << i << ",";
+	//}
+
+	
+
+
+
+}
+void col_menu(Matrix& M) {
+	cout << "Choose col number: ";
+	cin >> M.col_choice;
+	cout << "c  " << M.col_choice;
+	M.print_row(M.col_choice);
+	
+}
+
+
+
+
 
 
 //Matrix passed by reference	
-void all_prints( const Matrix&M) {
+void all_prints(Matrix&M) {
 	int print_choice;
-	int row_choice;
+	
 	int col_choice;
 	int down_diag_choice;
 	int up_diag_choice;
 	
 
 	cout << "Prints: \n";
-	cout << "Print Row(0)\n";
-	cout << "2.Print column(1)\n";
-	cout << "3.Print down diagonal(2)\n";
-	cout << "4.Print up diagonal(3)\n";
+	cout << "Row Menu(0) | Column Menu (1)| Print down diagonal(2) | Print up diagonal(3)\n";
 	cin >> print_choice;
-
-
 	switch (print_choice) {
 		case 0: {
-			cout << "Choose row number: ";
-			cin >> row_choice;
-			M.print_row(row_choice);
+			row_menu(M);
 			break;
 		}
 		case 1: {
-			cout << "Vector:(0- ";
-			//cout <<M.getCol() << " ";
-			cin >> col_choice;
-			M.print_vector(col_choice);
+			col_menu(M);
 			break;
 		}
 		case 2: {
@@ -747,7 +971,12 @@ void all_operations(Matrix& M) {
 			cout << MN;
 			break;
 		}
-		case 5: {
+		case 5:{
+			Matrix E;
+			E.gauss_jordan_elimination();
+			E.print_full_matrix();
+		}
+		case 6: {
 			Matrix P;
 			generate_matrix(P);
 			cout << "2nd Matrix";
@@ -756,7 +985,7 @@ void all_operations(Matrix& M) {
 			cout << MP;
 			break;
 		}
-		case 6: {
+		case 7: {
 			cout << "\nTrace = " << M.trace();
 		}
 
@@ -777,6 +1006,8 @@ void all_operations(Matrix& M) {
 //	}
 //
 //}
+
+
 
 
 
@@ -868,17 +1099,17 @@ ostream& operator<< (ostream& os, const Matrix::Fraction& f) {
 
 
 int main() {
-	Matrix E(2, 2);
-	cout << "Matrix must be 2^2 size.";
-	E(0, 0) = 2;
-	E(0, 1) = 3;
-	E(1, 0) = 4;
-	E(1, 1) = 5;
-	E.test();
-	E.print_full_matrix();
-	cout << "Row Sixe:" << E.getRowSize();
+	//Matrix E(2, 2);
+	//cout << "Matrix must be 2^2 size.";
+	//E(0, 0) = 2;
+	//E(0, 1) = 3;
+	//E(1, 0) = 4;
+	//E(1, 1) = 5;
+	//E.test();
+	//E.print_full_matrix();
+	//cout << "Row Sixe:" << E.getRowSize();
 
-	//main_menu();
+	main_menu();
 
 	//Matrix M2(2, 1);
 	//M2.test();
